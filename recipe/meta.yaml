@@ -1,29 +1,33 @@
+{% set name = "jupyter_bokeh" %}
 {% set version = "3.0.7" %}
 
 package:
-  name: jupyter_bokeh
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/j/jupyter_bokeh/jupyter_bokeh-{{ version }}.tar.gz
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
   sha256: 2da8c3ddc734d15737bf06126d9e31e84d30f18ac3da3a3f95be40a95a054c87
 
 build:
   number: 0
-  noarch: python
-  script: {{ PYTHON }} -m pip install . -vv --install-option="--skip-npm"
+  skip: True # [s390x or  py<38]
+  script: {{ PYTHON }} -m pip install . -vv --install-option="--skip-npm" --no-deps
 
 requirements:
+  build:
+    - {{ compiler('c') }}
   host:
-    - jupyter-packaging >=0.7.9,<0.8
+    - jupyter-packaging 0.7.9
     - pip
-    - python >=3.8
+    - python
+    - setuptools
+    - wheel
+    - jupyterlab 3.5.3
   run:
-    - bokeh >=3,<4
+    - bokeh >=3,<4 
     - ipywidgets >=8,<9
-    - python >=3.8
-  run_constrained:
-    - jupyterlab >=3,<4
+    - python
 
 test:
   imports:
@@ -36,20 +40,26 @@ test:
     - jupyter nbextension list 1>nbextensions 2>&1
     - jupyter labextension list
     - jupyter labextension list 1>labextensions 2>&1
-    - grep -iE "jupyter_bokeh/extension.*enabled" nbextensions
-    - grep -iE "@bokeh/jupyter_bokeh.*OK.*jupyter_bokeh" labextensions
+    - rg -ie "jupyter_bokeh/extension.*enabled" nbextensions
+    - rg -ie "@bokeh/jupyter_bokeh.*OK.*jupyter_bokeh" labextensions
   requires:
     - pip
     - jupyterlab
-    - m2-grep  # [win]
+    - ripgrep
 
 about:
   home: https://pypi.org/project/jupyter-bokeh
   summary: A Jupyter extension for rendering Bokeh content.
+  description: |
+    A Jupyter extension for rendering Bokeh content within Jupyter. 
+    See also the separate ipywidgets_bokeh library for support for 
+    using Jupyter widgets/ipywidgets objects within Bokeh applications.
   license: BSD-3-Clause
+  license_family: BSD
   license_file: 
     - LICENSE.txt
     - jupyter_bokeh/labextension/static/third-party-licenses.json
+  doc_url: https://docs.bokeh.org/en/latest/docs/user_guide/output/jupyter.html
   dev_url: https://github.com/bokeh/jupyter_bokeh
 
 extra:
