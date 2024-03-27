@@ -1,5 +1,5 @@
 {% set name = "jupyter_bokeh" %}
-{% set version = "3.0.7" %}
+{% set version = "4.0.1" %}
 
 package:
   name: {{ name|lower }}
@@ -7,40 +7,37 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 2da8c3ddc734d15737bf06126d9e31e84d30f18ac3da3a3f95be40a95a054c87
+  sha256: 076ddcfdd3c154ea506913b734b27270576c9f41ce26cad3ff2606a63a19ed19
 
 build:
   number: 0
   skip: True # [s390x or  py<38]
-  script: {{ PYTHON }} -m pip install . -vv --install-option="--skip-npm" --no-deps
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   build:
     - {{ compiler('c') }}
   host:
-    - jupyter-packaging 0.7.9
     - pip
     - python
-    - setuptools
-    - wheel
-    - jupyterlab 3.5.3
+    - hatchling >=1.5.0
+    - hatch-nodejs-version
+    - hatch-jupyter-builder >=0.8.2
   run:
-    - bokeh >=3,<4 
+    - bokeh >=3,<4
     - ipywidgets >=8,<9
     - python
+  run_constrained:
+    - jupyterlab >=4.0.0,<5
 
 test:
   imports:
     - jupyter_bokeh
-    - jupyter_bokeh.nbextension
     - jupyter_bokeh.widgets
   commands:
     - pip check
-    - jupyter nbextension list
-    - jupyter nbextension list 1>nbextensions 2>&1
     - jupyter labextension list
     - jupyter labextension list 1>labextensions 2>&1
-    - rg -ie "jupyter_bokeh/extension.*enabled" nbextensions
     - rg -ie "@bokeh/jupyter_bokeh.*OK.*jupyter_bokeh" labextensions
   requires:
     - pip
@@ -51,12 +48,12 @@ about:
   home: https://pypi.org/project/jupyter-bokeh
   summary: A Jupyter extension for rendering Bokeh content.
   description: |
-    A Jupyter extension for rendering Bokeh content within Jupyter. 
-    See also the separate ipywidgets_bokeh library for support for 
+    A Jupyter extension for rendering Bokeh content within Jupyter.
+    See also the separate ipywidgets_bokeh library for support for
     using Jupyter widgets/ipywidgets objects within Bokeh applications.
   license: BSD-3-Clause
   license_family: BSD
-  license_file: 
+  license_file:
     - LICENSE.txt
     - jupyter_bokeh/labextension/static/third-party-licenses.json
   doc_url: https://docs.bokeh.org/en/latest/docs/user_guide/output/jupyter.html
