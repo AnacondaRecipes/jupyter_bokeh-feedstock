@@ -1,26 +1,28 @@
 {% set name = "jupyter_bokeh" %}
-{% set version = "4.0.5" %}
+{% set version = "4.1.0" %}
 
 package:
-  name: {{ name|lower }}
+  name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: a33d6ab85588f13640b30765fa15d1111b055cbe44f67a65ca57d3593af8245d
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: fc0719c653920b5a1b2b42b2f4091c43fb1570880819058d820a2ab198cb93bf
 
 build:
   number: 0
-  skip: True # [s390x or  py<38]
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: true # [py<38]
 
 requirements:
   build:
+    - {{ stdlib('c') }}
     - {{ compiler('c') }}
   host:
     - pip
     - python
     - hatchling >=1.5.0
+    - hatch-nodejs-version >=4.0.0,<5
     - hatch-nodejs-version
     - hatch-jupyter-builder >=0.8.2
   run:
